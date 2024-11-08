@@ -61,7 +61,7 @@
         + encrypts the secret | in transit
       + see [Secret encryption and decryption in AWS Secrets Manager](security-encryption.md)
     + information about how to rotate the secret 
-      + see [Rotation](#term_rotation)
+      + see [Rotation](#rotationa-nameterm_rotationa)
 
 * Secrets Manager -- via, IAM permission policies, -- guarantee that ONLY authorized users can
   * access a secret OR
