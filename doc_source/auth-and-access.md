@@ -35,8 +35,8 @@
     * which actions
     * | which resources (your secrets)
   * you can 
-    + [Attach a permissions policy to an identity](auth-and-access_iam-policies.md)
-    + [Attach a permissions policy to an AWS Secrets Manager secret](auth-and-access_resource-policies.md)
+    + [Attach a permissions policy | identity](auth-and-access_iam-policies.md)
+    + [Attach a permissions policy | AWS Secrets Manager secret](auth-and-access_resource-policies.md)
 
 ## Permissions for Lambda rotation functions<a name="auth-and-access_rotate"></a>
 
