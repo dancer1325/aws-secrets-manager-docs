@@ -24,26 +24,34 @@
 
 ## Basic AWS Secrets Manager scenario<a name="intro-basic-scenario"></a>
 
-* TODO:
-The following diagram illustrates the most basic scenario\. The diagram displays you can store credentials for a database in Secrets Manager, and then use those credentials in an application to access the database\.
+* goal
+  * MOST basic scenario
+* scenario
+  * credentials to access to a database
+    * stored | Secrets Manager
+    * used by an application
 
-![\[Image NOT FOUND\]](http://docs.aws.amazon.com/secretsmanager/latest/userguide/images/ASM-Basic-Scenario.png)
+        ![\[Image NOT FOUND\]](http://docs.aws.amazon.com/secretsmanager/latest/userguide/images/ASM-Basic-Scenario.png)
 
-1. The database administrator creates a set of credentials on the Personnel database for use by an application called MyCustomApp\. The administrator also configures those credentials with the permissions required for the application to access the Personnel database\.
-
-1. The database administrator stores the credentials as a secret in Secrets Manager named *MyCustomAppCreds*\. Then, Secrets Manager encrypts and stores the credentials within the secret as the *protected secret text*\.
-
-1. When MyCustomApp accesses the database, the application queries Secrets Manager for the secret named *MyCustomAppCreds*\.
-
-1. Secrets Manager retrieves the secret, decrypts the protected secret text, and returns the secret to the client app over a secured \(HTTPS with TLS\) channel\.
-
-1. The client application parses the credentials, connection string, and any other required information from the response and then uses the information to access the database server\.
-
-**Note**  
-Secrets Manager supports many types of secrets\. However, Secrets Manager can *natively* rotate credentials for [supported AWS databases](#full-rotation-support) without any additional programming\. However, rotating the secrets for other databases or services requires creating a custom Lambda function to define how Secrets Manager interacts with the database or service\. You need some programming skill to create the function\. For more information, see [Rotate AWS Secrets Manager secrets](rotating-secrets.md)\.
+1. The database administrator -- creates a -- set of credentials | Personnel database /
+   1. used by an application -- MyCustomApp
+   2. configured / the application -- can access to the -- Personnel database
+2. The database administrator -- stores the credentials as a -- secret | Secrets Manager (named *MyCustomAppCreds*\)
+   1. -> Secrets Manager 
+      1. encrypts
+      2. stores the credentials -- as the -- *protected secret text*\.
+3. if MyCustomApp wants to access the database -> the application -- queries -- Secrets Manager
+4. Secrets Manager 
+   1. retrieves the secret,
+   2. decrypts the protected secret text
+   3. returns the secret -- via HTTPS with TLS, to the -- client app
+5. The client application
+   1. parses the credentials,
+   2. connection string,
+   3. uses it, -- to access the -- database server
 
 ## Features of AWS Secrets Manager<a name="features"></a>
-
+* TODO:
 ### Programmatically retrieve encrypted secret values at runtime<a name="features_retrieve-by-label"></a>
 
 Secrets Manager helps you improve your security posture by removing hard\-coded credentials from your application source code, and by not storing credentials within the application, in any way\. Storing the credentials in or with the application subjects them to possible compromise by anyone who can inspect your application or the components\. Since you have to update your application and deploy the changes to every client before you can deprecate the old credentials, this process makes rotating your credentials difficult\. 
@@ -72,34 +80,55 @@ In addition, Secrets Manager, by default, only accepts requests from hosts using
 
 ### Automatically rotate your secrets<a name="features_autorotate"></a>
 
-You can configure Secrets Manager to automatically rotate your secrets without user intervention and on a specified schedule\.
+* Secrets Manager can rotate credentials automatically 
+  * for
+    * [*natively* supported AWS databases](#databases-with-fully-configured-and-ready-to-use-rotation-supporta-namefull-rotation-supporta)
+      * *natively*  == NO additional programming
+    * OTHER databases or services
+      * requirements
+        * create a custom Lambda function 
+  * automatically == NO user intervention + scheduled
+  * 👀rotation -- is done via an -- AWS Lambda function / perform the tasks: 👀
+    + Creates a new version of the secret
+    + Stores the secret | Secrets Manager
+    + Configures the protected service -- to use the -- new version
+    + Verifies the new version
+    + Marks the new version -- as -- production ready
 
-You define and implement rotation with an AWS Lambda function\. This function defines how Secrets Manager performs the following tasks:
-+ Creates a new version of the secret\.
-+ Stores the secret in Secrets Manager\.
-+ Configures the protected service to use the new version\.
-+ Verifies the new version\.
-+ Marks the new version as production ready\.
+* Staging labels
+  * uses
+    * keep track of the different versions of your secrets 
+  * rules
+    * allowed >= 1 / version
+    * each staging label -- can ONLY be attached to -- 1! version 
+  * `AWSCURRENT`
+    * 👀== label | currently active & in-use version of the secret 👀
+    * uses
+      * most common configured one -- to query -- your applications
+  * `AWSPENDING`
+    * 👀== label | new version of a secret 👀
+      * UNTIL completed
+        * testing
+        * validation
+      * ONCE it's completed -> pass to `AWSCURRENT`
 
-Staging labels help you to keep track of the different versions of your secrets\. Each version can have multiple staging labels attached, but each staging label can only be attached to one version\. For example, Secrets Manager labels the currently active and in\-use version of the secret with `AWSCURRENT`\. You should configure your applications to always query for the current version of the secret\. When the rotation process creates a new version of a secret, Secrets Manager automatically adds the staging label `AWSPENDING` to the new version until testing and validation completes\. Only then does Secrets Manager add the `AWSCURRENT` staging label to this new version\. Your applications immediately start using the new secret the next time they query for the `AWSCURRENT` version\.<a name="rds-supported-database-list"></a>
+#### Databases / fully configured & ready-to-use rotation support<a name="full-rotation-support"></a>
 
-#### Databases with fully configured and ready\-to\-use rotation support<a name="full-rotation-support"></a>
+* Amazon RDS / AWS written + tested Lambda rotation function templates + full configuration of the rotation process
+  + Amazon Aurora | Amazon RDS
+  + MySQL | Amazon RDS
+  + PostgreSQL | Amazon RDS
+  + Oracle | Amazon RDS
+  + MariaDB | Amazon RDS
+  + Microsoft SQL Server | Amazon RDS
 
-When you choose to enable rotation, Secrets Manager supports the following Amazon Relational Database Service \(Amazon RDS\) databases with AWS written and tested Lambda rotation function templates, and full configuration of the rotation process:
-+ Amazon Aurora on Amazon RDS
-+ MySQL on Amazon RDS
-+ PostgreSQL on Amazon RDS
-+ Oracle on Amazon RDS
-+ MariaDB on Amazon RDS
-+ Microsoft SQL Server on Amazon RDS
+#### Other services / FULLY configured and ready-to-use rotation support<a name="other-with-full-rotation-support"></a>
 
-#### Other services with fully configured and ready\-to\-use rotation support<a name="other-with-full-rotation-support"></a>
-
-You can also choose to enable rotation on the following services, fully supported with AWS written and tested Lambda rotation function templates, and full configuration of the rotation process:<a name="other-supported-list"></a>
-+ Amazon DocumentDB 
-+ Amazon Redshift 
-
-You can also store secrets for almost any other kind of database or service\. However, to automatically rotate the secrets, you need to create and configure a custom Lambda rotation function\. For more information about writing a custom Lambda function for a database or service, see [How rotation works](rotating-secrets.md#rotate-secrets_how)\. 
+* other FULLY supported 
+  + Amazon DocumentDB 
+  + Amazon Redshift 
+* other databases or services
+  * see [How rotation works](rotating-secrets.md#rotate-secrets_how) 
 
 ### Control access to secrets<a name="features_control-access"></a>
 
@@ -125,13 +154,40 @@ AWS Secrets Manager has undergone auditing for the following standards and can b
 
 ## Pricing for AWS Secrets Manager<a name="asm_pricing"></a>
 
-When you use Secrets Manager, you pay only for what you use, and no minimum or setup fees\. There is no charge for secrets that you have marked for deletion\. For the current complete pricing list, see [AWS Secrets Manager Pricing](https://aws.amazon.com/secrets-manager/pricing)\.
+* pay ONLY for what you use /
+  * NO minimum or setup fees
+  * if secretes marked for deletion -> NO
 
-You can use the AWS managed key \(`aws/secretsmanager`\) that Secrets Manager creates to encrypt your secrets for free\. If you create your own KMS keys to encrypt your secrets, AWS charges you at the current AWS KMS rate\. For more information, see [AWS Key Management Service pricing](https://aws.amazon.com/kms/pricing)\.
+* see [AWS Secrets Manager Pricing](https://aws.amazon.com/secrets-manager/pricing)
 
-When you turn on automatic rotation, Secrets Manager uses an AWS Lambda function to rotate the secret, and you are charged for the rotation function at the current Lambda rate\. For more information, see [AWS Lambda Pricing](http://aws.amazon.com/lambda/pricing/)\. 
+* AWS managed key \(`aws/secretsmanager`\)
+  * default built-in
+  * used by 
+    * Secrets Manager
+  * pricing
+    * encrypt for free
+ 
+* created your own KMS keys
+  * pricing
+    * current AWS KMS rate
 
-If you enable AWS CloudTrail on your account, you can obtain logs of the API calls that Secrets Manager sends out\. Secrets Manager logs all events as management events\. AWS CloudTrail stores the first copy of all management events for free\. However, you can incur charges for Amazon S3 for log storage and for Amazon SNS if you enable notification\. Also, if you set up additional trails, the additional copies of management events can incur costs\. For more information, see [AWS CloudTrail pricing](https://aws.amazon.com/cloudtrail/pricing)\.
+* AWS Lambda function
+  * used | turn on automatic rotation
+  * pricing
+    * rotation function | current Lambda rate
+  * see [AWS Lambda Pricing](http://aws.amazon.com/lambda/pricing/) 
+
+* AWS CloudTrail
+  * allows
+    * obtain logs -- of the -- API calls / Secrets Manager sends out
+      * logged -- as -- management events 
+  * pricing
+    * the first copy for free
+    * depends on if you ALSO enable
+      * Amazon S3 log storage
+      * notification -- for -- Amazon SNS 
+    * if you set up additional trails -> additional copies of management events -- can -- incur costs 
+    * see [AWS CloudTrail pricing](https://aws.amazon.com/cloudtrail/pricing)
 
 ## Support and feedback for AWS Secrets Manager<a name="support-and-feedback"></a>
 
