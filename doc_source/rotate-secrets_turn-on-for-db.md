@@ -1,28 +1,20 @@
-# Set up automatic rotation for Amazon RDS, Amazon Redshift, or Amazon DocumentDB secrets using the console<a name="rotate-secrets_turn-on-for-db"></a>
+# automatic rotation | Amazon RDS, Amazon Redshift, or Amazon DocumentDB secrets -- via -- console<a name="rotate-secrets_turn-on-for-db"></a>
 
-Rotation is the process of periodically updating a secret\. When you rotate a secret, you update the credentials in both the secret and the database\. In Secrets Manager, you can set up automatic rotation for your database secrets\.
+* goal
+  * set up automatic rotation for your database secrets -- via -- AWS Console
 
-Secrets Manager uses Lambda functions to rotate secrets\. For an overview, see [How rotation works](rotating-secrets.md#rotate-secrets_how)\.
+* requirements
+  * next permissions -- Reason: 🧠 able to turn on automation rotation 🧠-- 
+    * `iam:CreateRole`
+      * create the IAM execution role
+    * `iam:AttachRolePolicy`
+      * attach a permission policy | this role
+    * risk 
+      * ⚠️-> the identity can grant ANY permissions | themselves ⚠️
 
-**Tip**  
-For some [Secrets managed by other services](service-linked-secrets.md), you use *managed rotation*\. To use [Managed rotation](rotate-secrets_managed.md), you first create the secret through the managing service\.
+## Step 1: Choose a rotation strategy & \(optionally\) create a superuser secret<a name="rotate-secrets_turn-on-for-db_step1"></a>
 
-To set up rotation using the console, you need to first choose a rotation strategy\. Then you configure the secret for rotation, which creates a Lambda rotation function if you don't already have one\. The console also sets permissions for the Lambda function execution role\. The last step is to make sure that the Lambda rotation function can access both Secrets Manager and your database through the network\.
-
-To turn on automatic rotation, you must have permission to create the IAM execution role and attach a permission policy to it\. You need both `iam:CreateRole` and `iam:AttachRolePolicy` permissions\. 
-
-**Warning**  
-Granting an identity both `iam:CreateRole` and `iam:AttachRolePolicy` permissions allows the identity to grant themselves any permissions\.
-
-**Topics**
-+ [Step 1: Choose a rotation strategy and \(optionally\) create a superuser secret](#rotate-secrets_turn-on-for-db_step1)
-+ [Step 2: Configure rotation and create a rotation function](#rotate-secrets_turn-on-for-db_step2)
-+ [Step 3: \(Optional\) Set an additional permissions condition on the rotation function](#rotate-secrets_turn-on-for-db_step3)
-+ [Step 4: Set up network access for the rotation function](#rotate-secrets_turn-on-for-db_step4)
-+ [Next steps](#rotate-secrets_turn-on-for-db_stepnext)
-
-## Step 1: Choose a rotation strategy and \(optionally\) create a superuser secret<a name="rotate-secrets_turn-on-for-db_step1"></a>
-
+* TODO: 
 For Amazon RDS, Amazon Redshift, and Amazon DocumentDB, Secrets Manager offers two rotation strategies:
 
 **Single user rotation strategy**  
@@ -68,7 +60,7 @@ Rotation functions for Amazon RDS \(except Oracle\) and Amazon DocumentDB automa
 
 1. Choose **Save**\.
 
-## Step 3: \(Optional\) Set an additional permissions condition on the rotation function<a name="rotate-secrets_turn-on-for-db_step3"></a>
+## Step 3: \(Optional\) Set an additional permissions condition | rotation function<a name="rotate-secrets_turn-on-for-db_step3"></a>
 
 In the resource policy for your rotation function, we recommend that you include the context key [https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_condition-keys.html#condition-keys-sourceaccount](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_condition-keys.html#condition-keys-sourceaccount) to help prevent Lambda from being used as a [confused deputy](https://docs.aws.amazon.com/IAM/latest/UserGuide/confused-deputy.html)\. For some AWS services, to avoid the confused deputy scenario, AWS recommends that you use both the [https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_condition-keys.html#condition-keys-sourcearn](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_condition-keys.html#condition-keys-sourcearn) and [https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_condition-keys.html#condition-keys-sourceaccount](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_condition-keys.html#condition-keys-sourceaccount) global condition keys\. However, if you include the `aws:SourceArn` condition in your rotation function policy, the rotation function can only be used to rotate the secret specified by that ARN\. We recommend that you include only the context key `aws:SourceAccount` so that you can use the rotation function for multiple secrets\. 
 
@@ -85,7 +77,7 @@ In the resource policy for your rotation function, we recommend that you include
        },
    ```
 
-## Step 4: Set up network access for the rotation function<a name="rotate-secrets_turn-on-for-db_step4"></a>
+## Step 4: Set up network access -- for the -- rotation function<a name="rotate-secrets_turn-on-for-db_step4"></a>
 
 To be able to rotate a secret, the Lambda rotation function must be able to access both the secret and the database or service\.
 
