@@ -7,7 +7,8 @@
     + [AWS Key Management Service](https://docs.aws.amazon.com/kms/latest/developerguide/overview.html)
   + SSH keys
     + [Amazon EC2 Instance Connect](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Connect-using-EC2-Instance-Connect.html)
-  + Private keys and certificates – [AWS Certificate Manager](https://docs.aws.amazon.com/acm/latest/userguide/acm-overview.html)
+  + Private keys and certificates
+    + [AWS Certificate Manager](https://docs.aws.amazon.com/acm/latest/userguide/acm-overview.html)
   + **Database credentials**
     + AWS Secrets Manager
   + **Application credentials**
@@ -42,16 +43,13 @@
             }
             ```
   * metadata ==
-    + ARN / format
-
-        ```
-        arn:aws:secretsmanager:<Region>:<AccountId>:secret:SecretName-6RandomCharacters
-        ```
     + information as
       + secretName,
       + description,
       + resource policy,
       + tags
+      + rotation of the secret
+        + see [Rotation](#rotationa-nameterm_rotationa) 
     + ARN -- for an -- *encryption key*
       + == AWS KMS key / Secrets Manager -- uses to --
         + encrypt the secret value
@@ -60,8 +58,11 @@
         + stores secret text | encrypted form
         + encrypts the secret | in transit
       + see [Secret encryption and decryption in AWS Secrets Manager](security-encryption.md)
-    + information about how to rotate the secret 
-      + see [Rotation](#rotationa-nameterm_rotationa)
+      + format
+  
+        ```
+        arn:aws:secretsmanager:<Region>:<AccountId>:secret:SecretName-6RandomCharacters
+        ```
 
 * Secrets Manager -- via, IAM permission policies, -- guarantee that ONLY authorized users can
   * access a secret OR
