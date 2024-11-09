@@ -70,15 +70,15 @@
              1. == you retain the last known good version of the secret 
   * if ANY rotation step fails -> Secrets Manager retries the ENTIRE rotation process / MULTIPLE times
   * if rotation is 
-    * successful -> `AWSPENDING` staging label -- might 
-      * be attached to the -- == `AWSCURRENT` version 
-      * NOT be attached to --
-        * ANY version
-        * == `AWSCURRENT` version -> ANY later invocation of rotation 
-          * -- assumes that --  previous rotation request STILL in progress
-          * returns an error
+    * successful ->
+      * `AWSPENDING` staging label -- might 
+        * be attached to the -- == `AWSCURRENT` version 
+        * NOT be attached to --
+          * ANY version
+          * == `AWSCURRENT` version -> ANY later invocation of rotation 
+            * -- assumes that --  previous rotation request STILL in progress
+            * returns an error
+      * applications / [Retrieve secrets from AWS Secrets Manager](retrieving-secrets.md) -> get the updated credentials
     * unsuccessful -> `AWSPENDING` staging label -- might be attached to an -- empty secret version
       * see [Troubleshoot rotation](troubleshoot_rotation.md)
-
-* TODO:
-After rotation is successful, applications that [Retrieve secrets from AWS Secrets Manager](retrieving-secrets.md) from Secrets Manager automatically get the updated credentials\. For more details about how each step of rotation works, see the [AWS Secrets Manager rotation function templates](reference_available-rotation-templates.md)\.
+  * see [AWS Secrets Manager rotation function templates](reference_available-rotation-templates.md)
