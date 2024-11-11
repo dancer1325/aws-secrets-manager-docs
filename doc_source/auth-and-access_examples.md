@@ -1,7 +1,8 @@
-# Permissions policy examples for AWS Secrets Manager<a name="auth-and-access_examples"></a>
+# Permissions policy -- examples for -- AWS Secrets Manager<a name="auth-and-access_examples"></a>
 
-A permissions policy is JSON structured text\. See [JSON policy document structure](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html#policies-introduction)\. 
+* see [JSON policy document structure](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html#policies-introduction) 
 
+* TODO:
 Permissions policies that you attach to resources and identities are very similar\. Some elements you include in a policy for access to secrets include:
 + `Principal`: who to grant access to\. See [Specifying a principal](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_principal.html#Principal_specifying) in the *IAM User Guide*\. When you attach a policy to an identity, you don't include a `Principal` element in the policy\.
 + `Action`: what they can do\. See [Secrets Manager actions](reference_iam-permissions.md#reference_iam-permissions_actions)\.
